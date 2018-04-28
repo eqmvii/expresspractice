@@ -42,13 +42,18 @@ app.get('/', (req, res) => {
             </ul>
             <p>For example, ${req.headers.host}/calculator/add/2/3</p>
             <p><a href="/calculator/add/2/3">Try it!</a></p>
-            <p>Your views: ${req.session.views}</p>
+            <h3>Tracking info:</h3>
+            <p>Your homepage views: ${req.session.views}</p>
+            <p>Your calculator uses: ${req.session.calculatorUses || 0}</p>
+
         </body>
     </html>
     `);
 });
 
 app.get('/calculator/:operator/:firstnum/:secondnum', function (req, res) {
+    req.session.calculatorUses = (req.session.calculatorUses || 0) + 1
+
     var operator = req.params.operator.toLowerCase();
     var firstNum = parseInt(req.params.firstnum);
     var secondNum = parseInt(req.params.secondnum);
@@ -71,7 +76,7 @@ app.get('/calculator/:operator/:firstnum/:secondnum', function (req, res) {
             result = "Error calculating.";
     }
 
-    result += `</h1></body></html>`;
+    result += `</h1><p><a href="/">Return Home</a></p></body></html>`;
     res.send(result);
 });
 
