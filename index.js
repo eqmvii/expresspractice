@@ -1,9 +1,31 @@
 const express = require('express');
 
+var cookieParser = require('cookie-parser');
+var cookieSession = require('cookie-session');
+
 const PORT = process.env.PORT || 4000;
-const app = express()
+
+const app = express();
+
+app.set('trust proxy', 1) // trust first proxy, maybe necessary for cookie work
+
+app.use(cookieSession({
+    name: 'session',
+    keys: ["key1", "key2"],
+
+    // Cookie Options
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
+
+app.use(cookieParser());
 
 app.get('/', (req, res) => {
+    req.session.views = (req.session.views || 0) + 1
+
+    // Log cookies for no particular reason
+    console.log('Cookies: ', req.cookies);
+    console.log('Signed Cookies: ', req.signedCookies);
+
     res.send(`
     <html>
         <head>
@@ -20,6 +42,7 @@ app.get('/', (req, res) => {
             </ul>
             <p>For example, ${req.headers.host}/calculator/add/2/3</p>
             <p><a href="/calculator/add/2/3">Try it!</a></p>
+            <p>Your views: ${req.session.views}</p>
         </body>
     </html>
     `);
